@@ -1,16 +1,16 @@
 # pq - A pure Go postgres driver for Go's database/sql package
 
-[![GoDoc](https://godoc.org/github.com/lib/pq?status.svg)](https://godoc.org/github.com/lib/pq)
+[![GoDoc](https://godoc.org/github.com/infrasrc/pq?status.svg)](https://godoc.org/github.com/infrasrc/pq)
 [![Build Status](https://travis-ci.org/lib/pq.svg?branch=master)](https://travis-ci.org/lib/pq)
 
 ## Install
 
-	go get github.com/lib/pq
+	go get github.com/infrasrc/pq
 
 ## Docs
 
 For detailed documentation and basic usage examples, please see the package
-documentation at <https://godoc.org/github.com/lib/pq>.
+documentation at <https://godoc.org/github.com/infrasrc/pq>.
 
 ## Tests
 
