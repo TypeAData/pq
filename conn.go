@@ -61,6 +61,19 @@ type parameterStatus struct {
 	currentLocation *time.Location
 }
 
+type RedshiftResult struct {
+	errorRows int64
+	importRows int64
+}
+
+func (rs RedshiftResult) LastInsertId() (int64, error) {
+	return rs.errorRows, nil
+}
+
+func (rs RedshiftResult) RowsAffected() (int64, error) {
+	return rs.importRows, nil
+}
+
 type transactionStatus byte
 
 const (
@@ -117,7 +130,13 @@ type conn struct {
 	secretKey int
 
 	parameterStatus parameterStatus
+
+
+	reSuccessRows *regexp.Regexp
+	reErrorRows *regexp.Regexp
+
 	importRows      int64
+	errorsRows      int64
 
 	saveMessageType   byte
 	saveMessageBuffer []byte
@@ -329,6 +348,8 @@ func DialOpen(d Dialer, name string) (_ driver.Conn, err error) {
 	}
 
 	cn := &conn{
+		reSuccessRows: regexp.MustCompile(`([0-9]+) record.*success`),
+		reErrorRows: regexp.MustCompile(`([0-9]+) record.*could not be loaded`),
 		opts:   o,
 		dialer: d,
 	}
@@ -1033,12 +1054,12 @@ func (cn *conn) processInfoData(r *readBuf) {
 
 	body := r.string()
 	rowsCount := int64(0)
+	errorsCount := int64(0)
 
 	switch strings.ToLower(param) {
 	case "sinfo":
 		for len(body) > 0 {
-			re := regexp.MustCompile(`([0-9]+) record.*success`)
-			res := re.FindAllString(body, -1)
+			res := cn.reSuccessRows.FindAllString(body, -1)
 			if len(res) > 0 {
 				rowSuccessStr := strings.Split(res[0], " ")
 				if len(rowSuccessStr) > 0 {
@@ -1047,6 +1068,18 @@ func (cn *conn) processInfoData(r *readBuf) {
 			}
 			if rowsCount > 0 {
 				cn.importRows = rowsCount
+				break
+			}
+
+			res = cn.reErrorRows.FindAllString(body, -1)
+			if len(res) > 0 {
+				rowErrorStr := strings.Split(res[0], " ")
+				if len(rowErrorStr) > 0 {
+					errorsCount, _ = strconv.ParseInt(rowErrorStr[0], 10, 64)
+				}
+			}
+			if errorsCount > 0 {
+				cn.errorsRows = errorsCount
 				break
 			}
 
@@ -1366,7 +1399,7 @@ func (cn *conn) parseComplete(commandTag string) (driver.Result, string) {
 
 	// Redshift returns COPY without inserted rows count
 	if affectedRows == nil && strings.HasPrefix(commandTag, "COPY") {
-		return driver.RowsAffected(cn.importRows), commandTag
+		return RedshiftResult{importRows: cn.importRows, errorRows: cn.errorsRows}, commandTag
 	}
 
 	// There should be no affected rows attached to the tag, just return it
