@@ -35,6 +35,10 @@ var (
 	errUnexpectedReady = errors.New("unexpected ReadyForQuery")
 	errNoRowsAffected  = errors.New("no RowsAffected available after the empty statement")
 	errNoLastInsertID  = errors.New("no LastInsertId available after the empty statement")
+
+	reSuccessRows = regexp.MustCompile(`([0-9]+) record.*success`)
+	reErrorRows = regexp.MustCompile(`([0-9]+) record.*could not be loaded`)
+
 )
 
 // Driver is the Postgres database driver.
@@ -130,10 +134,6 @@ type conn struct {
 	secretKey int
 
 	parameterStatus parameterStatus
-
-
-	reSuccessRows *regexp.Regexp
-	reErrorRows *regexp.Regexp
 
 	importRows      int64
 	errorsRows      int64
@@ -348,8 +348,6 @@ func DialOpen(d Dialer, name string) (_ driver.Conn, err error) {
 	}
 
 	cn := &conn{
-		reSuccessRows: regexp.MustCompile(`([0-9]+) record.*success`),
-		reErrorRows: regexp.MustCompile(`([0-9]+) record.*could not be loaded`),
 		opts:   o,
 		dialer: d,
 	}
@@ -1059,7 +1057,7 @@ func (cn *conn) processInfoData(r *readBuf) {
 	switch strings.ToLower(param) {
 	case "sinfo":
 		for len(body) > 0 {
-			res := cn.reSuccessRows.FindAllString(body, -1)
+			res := reSuccessRows.FindAllString(body, -1)
 			if len(res) > 0 {
 				rowSuccessStr := strings.Split(res[0], " ")
 				if len(rowSuccessStr) > 0 {
@@ -1071,7 +1069,7 @@ func (cn *conn) processInfoData(r *readBuf) {
 				break
 			}
 
-			res = cn.reErrorRows.FindAllString(body, -1)
+			res = reErrorRows.FindAllString(body, -1)
 			if len(res) > 0 {
 				rowErrorStr := strings.Split(res[0], " ")
 				if len(rowErrorStr) > 0 {
