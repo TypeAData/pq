@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/infrasrc/pq/oid"
+	"github.com/TypeAData/pq/oid"
 )
 
 var (

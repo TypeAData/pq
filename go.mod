@@ -1,1 +1,1 @@
-module github.com/infrasrc/pq
+module github.com/TypeAData/pq

@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/infrasrc/pq"
+	"github.com/TypeAData/pq"
 )
 
 func ExampleNewConnector() {

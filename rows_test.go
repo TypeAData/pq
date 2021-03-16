@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/infrasrc/pq/oid"
+	"github.com/TypeAData/pq/oid"
 )
 
 func TestDataTypeName(t *testing.T) {

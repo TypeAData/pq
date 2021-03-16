@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/infrasrc/pq"
+	_ "github.com/TypeAData/pq"
 )
 
 type Fatalistic interface {

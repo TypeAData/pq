@@ -21,7 +21,7 @@ import (
 
 	"regexp"
 
-	"github.com/infrasrc/pq/oid"
+	"github.com/TypeAData/pq/oid"
 )
 
 // Common error types

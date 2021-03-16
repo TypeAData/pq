@@ -7,7 +7,7 @@ using this package directly. For example:
 	import (
 		"database/sql"
 
-		_ "github.com/infrasrc/pq"
+		_ "github.com/TypeAData/pq"
 	)
 
 	func main() {
@@ -239,7 +239,7 @@ for more information).  Note that the channel name will be truncated to 63
 bytes by the PostgreSQL server.
 
 You can find a complete, working example of Listener usage at
-https://godoc.org/github.com/infrasrc/pq/example/listen.
+https://godoc.org/github.com/TypeAData/pq/example/listen.
 
 */
 package pq
